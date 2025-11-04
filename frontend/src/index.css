@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .debug-border {
+    @apply border-2 border-red-500;
+  }
+}

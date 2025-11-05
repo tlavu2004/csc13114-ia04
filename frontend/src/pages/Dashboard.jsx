@@ -1,31 +1,21 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { getUserProfile } from "../services/userService";
 import { useLogout } from "../hooks/useLogout";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-
   const logoutMutation = useLogout();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await getUserProfile(axiosPrivate);
-        setUserProfile(data);
-      } catch (err) {
-        console.error("Failed to fetch profile:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, [axiosPrivate]);
+  const { data: userProfile, isLoading, isError, error } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => getUserProfile(axiosPrivate),
+    enabled: !!axiosPrivate,
+    retry: 1,
+  });
 
   const handleLogout = async () => {
     try {
@@ -36,10 +26,20 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
         <p className="text-gray-500 text-lg">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+        <p className="text-red-600 text-lg">
+          Failed to load profile: {error?.message || "Unknown error"}
+        </p>
       </div>
     );
   }

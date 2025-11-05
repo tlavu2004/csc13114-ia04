@@ -1,14 +1,17 @@
 # Frontend (React + Vite) — IA03
 
-_This file documents how the frontend works and how to run it._
+_React SPA implementing JWT authentication with Axios, React Query, and React Hook Form._
 
 ---
 
 ## Tech highlights
+
 - Vite + React
-- Tailwind CSS for styling
-- React Hook Form for form validation
-- React Query for API calls (registration mutation)
+- Tailwind CSS
+- React Hook Form for login form
+- React Query for login/logout and fetching protected data
+- Axios with interceptors (access token + auto refresh)
+- Protected routes with React Router v6
 
 ---
 
@@ -23,7 +26,31 @@ npm run dev
 
 ---
 
+## Key files
+
+- `context/auth/AuthProvider.jsx` — Auth context, login/ - logout, access/refresh token management
+- `hooks/useLogin.js` — useMutation for login
+- `hooks/useLogout.js` — useMutation for logout
+- `hooks/useAxiosPrivate.js` — Axios instance with interceptors
+- `components/ProtectedRoute.jsx` — Guard dashboard route
+- `pages/Login.jsx` — Login page using React Hook Form
+- `pages/Dashboard.jsx` — Protected dashboard
+- `services/api.js` — Axios instance
+- `services/authService.js` — login / refresh / logout calls
+
+---
+
+## How it works
+
+- **Login**: User enters email/password → `useLogin` mutation → sets `auth` context + stores refresh token.
+- **ProtectedRoute**: Checks `auth.user` → redirects to `/login` if not logged in.
+- **Axios**: All requests attach access token; 401 triggers refresh → if refresh fails, logout + redirect.
+- **Logout**: Clears auth, removes refresh token, clears React Query cache, redirects to login.
+
+---
+
 ## Useful scripts (in `frontend/package.json`)
+
 - `dev` — start Vite dev server
 - `build` — build production bundle
 - `preview` — preview production build
@@ -31,12 +58,13 @@ npm run dev
 ---
 
 ## Environment
+
 - `.env.development.local` — contains `VITE_API_URL` for development. See `.env.example`.
 
 ---
 
-## How Register works
-- Form: `src/pages/Register.jsx` uses `react-hook-form` and `src/components/Input.jsx` (forwards ref).
-- Validation: `src/utils/validators.js` (email + password rules). Password policy is synced with backend (8-128 chars, uppercase, lowercase, digit, allowed special chars, no spaces).
-- API: `src/services/userService.js` posts to `${VITE_API_URL}/user/register`.
-- React Query: mutation exposed via `src/hooks/useAuth.js`.
+## Notes
+
+- Error messages shown when login fails or refresh token expired.
+- Access token stored in memory, refresh token in localStorage as per assignment.
+- Protected data fetched using useQuery with useAxiosPrivate.

@@ -1,6 +1,6 @@
-# Backend — NestJS (IA03)
+# Backend — NestJS (IA04)
 
-_This folder contains the backend API for IA03. It implements the `/user/register` endpoint with validation and password hashing._
+_Thư mục chứa backend API cho bài tập IA04._
 
 ---
 
@@ -10,30 +10,36 @@ _This folder contains the backend API for IA03. It implements the `/user/registe
 cd backend
 npm install
 # Set environment variables (example .env):
-# MONGODB_URI=mongodb://localhost:27017/ia03
+# MONGODB_URI=mongodb://localhost:27017/ia04
 # ALLOWED_ORIGINS=http://localhost:5173
 npm run start:dev
 ```
 
 ---
 
-## API
+## API Endpoints
+
 - **POST** `/user/register`
-  - Request body: `{ "email": string, "password": string }`
-  - Responses:
-    - 201: `{ message: 'User registered successfully', user: { id, email, createdAt } }`
-    - 400: validation or duplicate email (body contains message)
+- **POST** `/auth/login`
+- **POST** `/auth/refresh`
+- **POST** `/auth/logout`
+- **GET** `/user/profile`
 
 ---
 
-## Validation & security
-- Input validation implemented with `class-validator` in `src/user/dto/register.dto.ts` (email format, password policy).
-- Passwords are hashed with bcrypt before saving (`src/user/services/user.service.ts`).
-- CORS and ValidationPipe are configured in `src/main.ts`. Use `ALLOWED_ORIGINS` env var to allow frontend origin(s).
+## Security notes
+
+- JWT signed with secret key (`JWT_SECRET` and `JWT_REFRESH_SECRET`).
+- Refresh tokens invalidated on logout.
 
 ---
 
 ## Environment variables
-- `MONGODB_URI` (required) — MongoDB connection string
-- `PORT` (optional) — server port (default 3000)
-- `ALLOWED_ORIGINS` (optional) — CSV of origins allowed by CORS
+
+- `MONGODB_URI`
+- `PORT`
+- `ALLOWED_ORIGINS`
+- `JWT_ACCESS_SECRET`
+- `JWT_ACCESS_EXPIRES_IN`
+- `JWT_ACCESS_SECRET`
+- `JWT_ACCESS_EXPIRES_IN`

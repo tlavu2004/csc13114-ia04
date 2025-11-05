@@ -4,8 +4,11 @@ import { registerUser } from "../services/userService";
 export function useRegister() {
   const mutation = useMutation({
     mutationFn: registerUser,
-    onSuccess: (data) => {
+    onSuccess: (data, variables, context) => {
       console.log("Registration success:", data);
+      if (context?.onSuccess) {
+        context.onSuccess(data);
+      }
     },
     onError: (err) => {
       console.error("Registration error:", err);
@@ -23,9 +26,9 @@ export function useRegister() {
     },
   });
 
-  const submitRegister = (data) => {
+  const submitRegister = (data, options) => {
     console.log("Registering:", data);
-    mutation.mutate(data);
+    mutation.mutate(data, options);
   };
 
   return { ...mutation, submitRegister };

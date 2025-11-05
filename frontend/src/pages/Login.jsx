@@ -1,31 +1,43 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import BackButton from "../components/BackButton";
-import { validateLogin } from "../utils/validators";
+import { useAuth } from "../context/auth/AuthProvider";
+import { isValidEmail } from "../utils/validators";
 
 export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setStatus("loading");
     setErrorMessage("");
 
-    // Fake delay to simulate API call
-    setTimeout(() => {
-      const result = validateLogin(email, password);
-      if (result.valid) {
-        setStatus("success");
-      } else {
-        setStatus("error");
-        setErrorMessage(result.message);
-      }
-    }, 1000);
+    if (!isValidEmail(email)) {
+      setStatus("error");
+      setErrorMessage("Invalid email format");
+      return;
+    }
+
+    try {
+      await login(email, password);
+      setStatus("success");
+      navigate("/dashboard", { state: { message: "Logged in successfully!" } });
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+      setErrorMessage(
+        err?.response?.data?.message || err.message || "Login failed"
+      );
+    }
   };
 
   return (
@@ -66,11 +78,6 @@ export default function Login() {
           </Button>
         </form>
 
-        {status === "success" && (
-          <p className="text-green-600 mt-4 text-center">
-            Logged in successfully (simulation)
-          </p>
-        )}
         {status === "error" && (
           <p className="text-red-600 mt-4 text-center">{errorMessage}</p>
         )}

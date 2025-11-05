@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRegister } from "../hooks/useAuth";
+import { useRegister } from "../hooks/useRegister";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import BackButton from "../components/BackButton";
 import { isValidEmail, isStrongPassword } from "../utils/validators";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const navigate = useNavigate();
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const { submitRegister, isLoading, isError, isSuccess, error } = useRegister();
 
@@ -16,7 +18,12 @@ export default function Register() {
   const onSubmit = (data) => {
     const { confirmPassword, ...payload } = data;
     console.log("Form submitted with:", payload);
-    submitRegister(payload);
+    submitRegister(payload, {
+      onSuccess: () => {
+        alert("Registered successfully!");
+        navigate("/login");
+      },
+    });
   };
 
   const password = watch("password");

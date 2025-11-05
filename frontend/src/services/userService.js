@@ -5,7 +5,7 @@ export const registerUser = async (data) => {
   return res.data;
 };
 
-export const getUserProfile = async () => {
-  const res = await api.get("/user/profile");
+export const getUserProfile = async (axiosInstance) => {
+  const res = await axiosInstance.get("/user/profile");
   return res.data;
 };

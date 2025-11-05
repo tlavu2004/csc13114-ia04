@@ -6,7 +6,10 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+  constructor(
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
+  ) { }
 
   async hashPassword(password: string): Promise<string> {
     try {

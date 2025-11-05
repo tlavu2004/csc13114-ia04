@@ -1,12 +1,24 @@
-export default function BackButton() {
+import { useNavigate } from "react-router-dom";
+
+export default function BackButton({ to }) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (to) {
+      navigate(to);
+    } else {
+      window.history.back();
+    }
+  };
+
   return (
     <button
       type="button"
-      onClick={() => window.history.back()}
-      className="mb-2 text-sm text-gray-600 hover:underline"
+      onClick={handleClick}
+      className="text-blue-600 hover:text-blue-800 mb-4"
       aria-label="Back"
     >
-      ← Back
+      &larr; Back
     </button>
   );
 }

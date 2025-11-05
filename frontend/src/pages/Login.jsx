@@ -43,7 +43,7 @@ export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-lg">
-        <BackButton />
+        <BackButton to="/" />
         <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
           Login
         </h1>

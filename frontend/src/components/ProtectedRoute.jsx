@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
   }
 
   if (!auth?.accessToken) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

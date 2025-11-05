@@ -9,6 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ user: null, accessToken: null });
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("refreshToken", refreshToken);
   };
 
-  const logout = async (navigate) => {
+  const logout = async () => {
     try {
       const storedRefresh = localStorage.getItem("refreshToken");
       if (storedRefresh) {
@@ -44,14 +45,12 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setAuth({ user: null, accessToken: null });
       localStorage.removeItem("refreshToken");
-      if (navigate) {
-        navigate("/", { replace: true });
-      }
+      setShouldRedirect(true);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, login, logout, loadingAuth }}>
+    <AuthContext.Provider value={{ auth, setAuth, login, logout, loadingAuth, shouldRedirect, setShouldRedirect }}>
       {children}
     </AuthContext.Provider>
   );

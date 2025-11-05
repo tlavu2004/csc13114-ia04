@@ -8,17 +8,23 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ user: null, accessToken: null });
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
-    const storedRefresh = localStorage.getItem("refreshToken");
-    if (storedRefresh) {
-      refreshTokenService(storedRefresh)
-        .then((tokens) => setAuth({ user: tokens.user, accessToken: tokens.accessToken }))
-        .catch(() => {
+    const initAuth = async () => {
+      const storedRefresh = localStorage.getItem("refreshToken");
+      if (storedRefresh) {
+        try {
+          const tokens = await refreshTokenService(storedRefresh);
+          setAuth({ user: tokens.user, accessToken: tokens.accessToken });
+        } catch {
           setAuth({ user: null, accessToken: null });
           localStorage.removeItem("refreshToken");
-        });
-    }
+        }
+      }
+      setLoadingAuth(false);
+    };
+    initAuth();
   }, []);
 
   const login = async (email, password) => {
@@ -42,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, login, logout }}>
+    <AuthContext.Provider value={{ auth, setAuth, login, logout, loadingAuth }}>
       {children}
     </AuthContext.Provider>
   );

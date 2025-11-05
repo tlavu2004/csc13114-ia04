@@ -8,18 +8,10 @@ import { getUserProfile } from "../services/userService";
 export default function Dashboard() {
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
-  const axiosPrivate = useAxiosPrivate(); // dùng axios đã có interceptor
+  const axiosPrivate = useAxiosPrivate();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Redirect nếu chưa login
-  useEffect(() => {
-    if (!auth?.accessToken) {
-      navigate("/login", { replace: true });
-    }
-  }, [auth?.accessToken, navigate]);
-
-  // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
       if (!auth?.accessToken) return;
@@ -40,7 +32,7 @@ export default function Dashboard() {
     navigate("/", { replace: true });
   };
 
-  if (!auth?.accessToken || loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
         <p className="text-gray-500 text-lg">Loading dashboard...</p>
@@ -54,6 +46,7 @@ export default function Dashboard() {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-700 mb-4">
           Welcome, {userProfile?.email || "User"}!
         </h1>
+
         <p className="text-green-600 text-lg mb-6">
           You have logged in successfully.
         </p>

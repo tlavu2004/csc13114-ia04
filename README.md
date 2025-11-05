@@ -11,6 +11,12 @@ _Project này là bài tập IA04: thực hiện 1 ứng dụng React SPA với 
 
 ---
 
+## Lưu ý quan trọng
+
+Bài tập **IA04** sử dụng **chung database** với bài tập **IA03**.
+
+---
+
 ## Bảng điểm tự đánh giá
 
 | Tiêu chí                             | Mô tả                                                                   | Tỉ trọng | Mức độ hoàn thành |

@@ -14,22 +14,21 @@ export default function Register() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const password = watch("password");
 
   const onSubmit = (data) => {
     const { confirmPassword, ...payload } = data;
-    console.log("Form submitted with:", payload);
     submitRegister(payload, {
       onSuccess: () => {
-        alert("Registered successfully!");
-        navigate("/login");
+        setShowSuccess(true);
       },
     });
   };
 
-  const password = watch("password");
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
       <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-lg">
         <BackButton to="/" />
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-700">
@@ -95,9 +94,6 @@ export default function Register() {
           </Button>
         </form>
 
-        {isSuccess && (
-          <p className="text-green-600 mt-4 text-center">Registered successfully!</p>
-        )}
         {isError && (
           <p className="text-red-600 mt-4 text-center">
             {error?.formattedMessage ||
@@ -107,6 +103,24 @@ export default function Register() {
           </p>
         )}
       </div>
+
+      {showSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-opacity-50 backdrop-blur-sm"></div>
+
+          <div className="relative bg-white border-2 border-blue-500 text-blue-700 px-8 py-6 rounded-xl shadow-lg text-center w-96">
+            <p className="text-xl font-semibold mb-4">
+              Registration Successful!
+            </p>
+            <p className="mb-6 text-blue-800">
+              Your account has been created. Please proceed to login.
+            </p>
+            <Button onClick={() => navigate("/login")} className="w-full text-lg">
+              OK
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

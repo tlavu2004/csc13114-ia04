@@ -1,42 +1,40 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../context/auth/AuthProvider";
-import { isValidEmail } from "../utils/validators";
+import { useLogin } from "../hooks/useLogin";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { setAuth } = useAuth();
   const navigate = useNavigate();
+  const loginMutation = useLogin();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [status, setStatus] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setStatus("loading");
-    setErrorMessage("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: { email: "", password: "" },
+  });
 
-    if (!isValidEmail(email)) {
-      setStatus("error");
-      setErrorMessage("Invalid email format");
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
-      await login(email, password);
-      setStatus("success");
+      const { user, accessToken, refreshToken } = await loginMutation.mutateAsync({
+        email: data.email,
+        password: data.password,
+      });
+
+      setAuth({ user, accessToken });
+      localStorage.setItem("refreshToken", refreshToken);
+
       navigate("/dashboard", { state: { message: "Logged in successfully!" } });
     } catch (err) {
       console.error(err);
-      setStatus("error");
-      setErrorMessage(
-        err?.response?.data?.message || err.message || "Login failed"
-      );
     }
   };
 
@@ -48,20 +46,30 @@ export default function Login() {
           Login
         </h1>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <Input
             type="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "Invalid email format",
+              },
+            })}
           />
+          {errors.email && (
+            <p className="text-red-600 text-sm">{errors.email.message}</p>
+          )}
 
           <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...register("password", {
+                required: "Password is required",
+                minLength: { value: 6, message: "Password must be at least 6 characters" },
+              })}
               className="pr-10"
             />
             <button
@@ -72,15 +80,22 @@ export default function Login() {
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
+          {errors.password && (
+            <p className="text-red-600 text-sm">{errors.password.message}</p>
+          )}
 
           <Button type="submit">
-            {status === "loading" ? "Logging in..." : "Login"}
+            {loginMutation.isLoading ? "Logging in..." : "Login"}
           </Button>
-        </form>
 
-        {status === "error" && (
-          <p className="text-red-600 mt-4 text-center">{errorMessage}</p>
-        )}
+          {loginMutation.isError && (
+            <p className="text-red-600 mt-4 text-center">
+              {loginMutation.error?.response?.data?.message ||
+                loginMutation.error?.message ||
+                "Login failed"}
+            </p>
+          )}
+        </form>
       </div>
     </div>
   );

@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { getUserProfile } from "../services/userService";
+import { useLogout } from "../hooks/useLogout";
 
 export default function Dashboard() {
-  const { auth, logout } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const logoutMutation = useLogout();
+
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!auth?.accessToken) return;
       try {
         const data = await getUserProfile(axiosPrivate);
         setUserProfile(data);
@@ -25,11 +25,15 @@ export default function Dashboard() {
       }
     };
     fetchProfile();
-  }, [auth?.accessToken, axiosPrivate]);
+  }, [axiosPrivate]);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/", { replace: true });
+    try {
+      await logoutMutation.mutateAsync();
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (loading) {
@@ -77,9 +81,21 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <Button onClick={handleLogout} className="w-full">
-          Logout & Return Home
+        <Button
+          onClick={handleLogout}
+          className="w-full"
+          disabled={logoutMutation.isLoading}
+        >
+          {logoutMutation.isLoading ? "Logging out..." : "Logout & Return Home"}
         </Button>
+
+        {logoutMutation.isError && (
+          <p className="text-red-600 mt-4 text-center">
+            {logoutMutation.error?.response?.data?.message ||
+              logoutMutation.error?.message ||
+              "Logout failed"}
+          </p>
+        )}
       </div>
     </div>
   );

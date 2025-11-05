@@ -11,12 +11,14 @@ export default function Login() {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
   const loginMutation = useLogin();
-
   const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setError,
+    setFocus,
+    resetField,
     formState: { errors },
   } = useForm({
     defaultValues: { email: "", password: "" },
@@ -35,6 +37,19 @@ export default function Login() {
       navigate("/dashboard", { state: { message: "Logged in successfully!" } });
     } catch (err) {
       console.error(err);
+
+      // Reset password field
+      resetField("password");
+
+      // Set focus to password input
+      setFocus("password");
+
+      // Optional: show mutation error
+      setError("password", {
+        type: "manual",
+        message:
+          err?.response?.data?.message || err.message || "Login failed",
+      });
     }
   };
 
@@ -84,17 +99,9 @@ export default function Login() {
             <p className="text-red-600 text-sm">{errors.password.message}</p>
           )}
 
-          <Button type="submit">
+          <Button type="submit" disabled={loginMutation.isLoading}>
             {loginMutation.isLoading ? "Logging in..." : "Login"}
           </Button>
-
-          {loginMutation.isError && (
-            <p className="text-red-600 mt-4 text-center">
-              {loginMutation.error?.response?.data?.message ||
-                loginMutation.error?.message ||
-                "Login failed"}
-            </p>
-          )}
         </form>
       </div>
     </div>

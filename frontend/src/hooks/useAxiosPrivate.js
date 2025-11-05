@@ -3,7 +3,7 @@ import api from "../services/api";
 import { useAuth } from "../context/auth/AuthProvider";
 import { refreshToken as refreshTokenService } from "../services/authService";
 
-const useAxiosPrivate = () => {
+const useAxiosPrivate = (navigate) => {
   const { auth, setAuth, logout } = useAuth();
 
   useEffect(() => {
@@ -31,8 +31,10 @@ const useAxiosPrivate = () => {
               prevRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
               return api(prevRequest);
             } catch {
-              logout();
+              logout(navigate);
             }
+          } else {
+            logout(navigate);
           }
         }
         return Promise.reject(error);
@@ -43,7 +45,7 @@ const useAxiosPrivate = () => {
       api.interceptors.request.eject(requestIntercept);
       api.interceptors.response.eject(responseIntercept);
     };
-  }, [auth, setAuth, logout]);
+  }, [auth, setAuth, logout, navigate]);
 
   return api;
 };

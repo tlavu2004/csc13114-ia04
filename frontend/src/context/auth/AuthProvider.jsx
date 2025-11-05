@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("refreshToken", refreshToken);
   };
 
-  const logout = async () => {
+  const logout = async (navigate) => {
     try {
       const storedRefresh = localStorage.getItem("refreshToken");
       if (storedRefresh) {
@@ -44,6 +44,9 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setAuth({ user: null, accessToken: null });
       localStorage.removeItem("refreshToken");
+      if (navigate) {
+        navigate("/", { replace: true });
+      }
     }
   };
 

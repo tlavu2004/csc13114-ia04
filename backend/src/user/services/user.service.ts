@@ -27,4 +27,12 @@ export class UserService {
     const user = new this.userModel({ email, password: hashedPassword });
     return user.save();
   }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email });
+  }
+
+  async validatePassword(user: User, password: string): Promise<boolean> {
+    return bcrypt.compare(password, user.password);
+  }
 }

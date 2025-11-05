@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule } from './user/user.module';
+import { UserModule } from './user/modules/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig from './common/config/app.config';
 import databaseConfig from './common/config/database.config';
+import { AuthModule } from './auth/modules/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import databaseConfig from './common/config/database.config';
       }),
     }),
     UserModule,
+    AuthModule,
   ],
 })
 export class AppModule { }
